@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
+WORKDIR /app
 
 COPY composer.json composer.lock ./
 RUN composer install --no-scripts --no-autoloader --no-interaction
@@ -30,5 +30,5 @@ RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
