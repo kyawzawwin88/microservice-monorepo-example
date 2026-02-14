@@ -21,7 +21,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-scripts --no-autoloader --no-interaction
 
 COPY . .
-RUN composer install --optimize-autoloader --no-interaction
+RUN composer install --no-scripts --optimize-autoloader --no-interaction
 
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
