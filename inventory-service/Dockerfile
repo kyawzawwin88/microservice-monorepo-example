@@ -17,11 +17,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY composer.json composer.lock* ./
-RUN composer install --no-scripts --no-autoloader --no-interaction 2>/dev/null || true
+COPY composer.json composer.lock ./
+RUN composer install --no-scripts --no-autoloader --no-interaction
 
 COPY . .
-RUN composer install --optimize-autoloader --no-interaction 2>/dev/null || true
+RUN composer install --optimize-autoloader --no-interaction
 
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
