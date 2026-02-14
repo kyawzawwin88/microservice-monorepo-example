@@ -1,0 +1,37 @@
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+
+pkg_tar(
+    name = "sales_service_tar",
+    srcs = glob(["**/*"]),
+    strip_prefix = ".",
+)
+
+# All source files for dependency tracking
+filegroup(
+    name = "sales_service_files",
+    srcs = glob(
+        ["**/*"],
+        exclude = [
+            "vendor/**",
+            "node_modules/**",
+            ".env",
+            "storage/logs/**",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)
+
+# Run sales-service + its queue worker
+# Usage: bazelisk run //sales-service:run
+sh_binary(
+    name = "run",
+    srcs = ["//scripts:run_service.sh"],
+    args = [
+        "sales-service",
+        "sales-worker",
+    ],
+    data = [
+        ":sales_service_files",
+        "//:docker-compose.yml",
+    ],
+)

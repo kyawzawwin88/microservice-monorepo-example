@@ -1,0 +1,3 @@
+# Bazel configuration for microservice monorepo
+build --jobs=4
+build --verbose_failures

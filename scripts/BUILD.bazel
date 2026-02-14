@@ -1,0 +1,13 @@
+# Scripts package — shared shell scripts for Bazel targets
+
+exports_files(
+    [
+        "run_all.sh",
+        "run_service.sh",
+        "build_all.sh",
+        "stop_all.sh",
+        "migrate_all.sh",
+        "setup.sh",
+    ],
+    visibility = ["//visibility:public"],
+)

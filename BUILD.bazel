@@ -1,0 +1,62 @@
+# Root BUILD file for microservice monorepo
+# Each service is a separate Bazel package
+#
+# Commands:
+#   bazelisk run //:run_all       — Start all services (docker compose up --build)
+#   bazelisk run //:build_all     — Build all Docker images
+#   bazelisk run //:stop_all      — Stop all services (docker compose down)
+#   bazelisk run //:migrate_all   — Run DB migrations for all services
+#   bazelisk build //...          — Validate & package all targets
+#
+#   bazelisk run //sales-service:run
+#   bazelisk run //invoice-service:run
+#   bazelisk run //payment-service:run
+#   bazelisk run //inventory-service:run
+#   bazelisk run //ui:run
+
+exports_files([
+    "MODULE.bazel",
+    "docker-compose.yml",
+])
+
+# ── Run ALL services ──────────────────────────────────────────────
+sh_binary(
+    name = "run_all",
+    srcs = ["//scripts:run_all.sh"],
+    data = [
+        "docker-compose.yml",
+        "//sales-service:sales_service_files",
+        "//invoice-service:invoice_service_files",
+        "//payment-service:payment_service_files",
+        "//inventory-service:inventory_service_files",
+        "//ui:ui_files",
+    ],
+)
+
+# ── Build ALL Docker images ───────────────────────────────────────
+sh_binary(
+    name = "build_all",
+    srcs = ["//scripts:build_all.sh"],
+    data = [
+        "docker-compose.yml",
+        "//sales-service:sales_service_files",
+        "//invoice-service:invoice_service_files",
+        "//payment-service:payment_service_files",
+        "//inventory-service:inventory_service_files",
+        "//ui:ui_files",
+    ],
+)
+
+# ── Stop ALL services ─────────────────────────────────────────────
+sh_binary(
+    name = "stop_all",
+    srcs = ["//scripts:stop_all.sh"],
+    data = ["docker-compose.yml"],
+)
+
+# ── Migrate ALL databases ────────────────────────────────────────
+sh_binary(
+    name = "migrate_all",
+    srcs = ["//scripts:migrate_all.sh"],
+    data = ["docker-compose.yml"],
+)

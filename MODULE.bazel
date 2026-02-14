@@ -1,0 +1,12 @@
+"""
+Microservice Monorepo - Bazel Module Configuration
+Demonstrates event-driven Laravel microservices with durable workflows
+"""
+
+module(
+    name = "microservice-monorepo",
+    version = "1.0.0",
+)
+
+bazel_dep(name = "rules_oci", version = "1.7.5")
+bazel_dep(name = "rules_pkg", version = "1.0.1")
