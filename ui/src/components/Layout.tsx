@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {nav.map((item) => {
-            const active = pathname === item.to;
+            const active = item.to === '/' ? pathname === '/' : pathname === item.to || pathname.startsWith(`${item.to}/`);
             return (
               <Link
                 key={item.to}

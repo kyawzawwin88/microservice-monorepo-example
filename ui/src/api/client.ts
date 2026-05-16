@@ -25,14 +25,29 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
+export class ApiRequestError extends Error {
+  readonly status: number;
+  readonly errors?: Record<string, string[]>;
+
+  constructor(message: string, status: number, errors?: Record<string, string[]>) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.status = status;
+    this.errors = errors;
+  }
+}
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     ...options,
   });
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.message ?? `HTTP ${res.status}`);
+    const body = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      errors?: Record<string, string[]>;
+    };
+    throw new ApiRequestError(body.message ?? `HTTP ${res.status}`, res.status, body.errors);
   }
   return res.json();
 }

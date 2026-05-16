@@ -23,7 +23,7 @@ class InventorySeeder extends Seeder
         foreach ($items as $item) {
             InventoryItem::updateOrCreate(
                 ['sku' => $item['sku']],
-                $item
+                array_merge($item, ['has_variations' => false, 'unit_price' => 9.99])
             );
         }
     }

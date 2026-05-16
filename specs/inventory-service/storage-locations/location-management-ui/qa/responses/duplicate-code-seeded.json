@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="refresh" content="0;url='http://localhost:8004'" />
+
+        <title>Redirecting to http://localhost:8004</title>
+    </head>
+    <body>
+        Redirecting to <a href="http://localhost:8004">http://localhost:8004</a>.
+    </body>
+</html>
+HTTP:302

@@ -498,11 +498,13 @@ services:
       context: ./inventory-service
       dockerfile: Dockerfile
     container_name: inventory-service
+    entrypoint: ["/app/docker-entrypoint.sh"]
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
     ports:
       - "8004:8000"
     volumes:
-      - ./inventory-service:/var/www/html
-      - inventory_vendor:/var/www/html/vendor
+      - ./inventory-service:/app
+      - inventory_vendor:/app/vendor
     depends_on:
       mysql-inventory:
         condition: service_healthy
@@ -540,11 +542,12 @@ services:
       context: ./inventory-service
       dockerfile: Dockerfile
     container_name: inventory-worker
+    entrypoint: ["/app/docker-entrypoint.sh"]
     restart: on-failure
     command: php artisan queue:work eventbus --queue=inventory --sleep=3 --tries=3
     volumes:
-      - ./inventory-service:/var/www/html
-      - inventory_vendor:/var/www/html/vendor
+      - ./inventory-service:/app
+      - inventory_vendor:/app/vendor
     depends_on:
       mysql-inventory:
         condition: service_healthy
@@ -553,6 +556,7 @@ services:
       redis:
         condition: service_healthy
     environment:
+      SKIP_MIGRATIONS: "true"
       APP_NAME: InventoryService
       APP_ENV: local
       APP_DEBUG: "true"
@@ -583,11 +587,12 @@ services:
       context: ./inventory-service
       dockerfile: Dockerfile
     container_name: inventory-workflow-worker
+    entrypoint: ["/app/docker-entrypoint.sh"]
     restart: on-failure
     command: php artisan queue:work database --queue=default --sleep=3 --tries=3
     volumes:
-      - ./inventory-service:/var/www/html
-      - inventory_vendor:/var/www/html/vendor
+      - ./inventory-service:/app
+      - inventory_vendor:/app/vendor
     depends_on:
       mysql-inventory:
         condition: service_healthy
@@ -596,6 +601,7 @@ services:
       redis:
         condition: service_healthy
     environment:
+      SKIP_MIGRATIONS: "true"
       APP_NAME: InventoryService
       APP_ENV: local
       APP_DEBUG: "true"

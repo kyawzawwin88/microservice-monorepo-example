@@ -3,6 +3,12 @@
 return [
     'default' => env('DB_CONNECTION', 'mysql'),
     'connections' => [
+        'sqlite' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', ':memory:'),
+            'prefix' => '',
+            'foreign_key_constraints' => true,
+        ],
         'mysql' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', '127.0.0.1'),

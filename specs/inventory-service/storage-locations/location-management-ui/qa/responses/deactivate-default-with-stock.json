@@ -1,0 +1,2 @@
+{"message":"Cannot deactivate \"Main Warehouse\" while it still has available or reserved stock. Transfer or clear stock first."}
+HTTP:422

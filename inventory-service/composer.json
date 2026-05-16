@@ -31,7 +31,8 @@
     "scripts": {
         "post-autoload-dump": [
             "@php artisan package:discover --ansi"
-        ]
+        ],
+        "test": "phpunit"
     },
     "extra": {
         "laravel": {

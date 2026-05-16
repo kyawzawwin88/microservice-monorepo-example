@@ -2,59 +2,96 @@
 
 namespace App\Activities;
 
-use App\Exceptions\InventoryProcessingException;
 use App\Models\InventoryItem;
 use App\Models\InventoryReservation;
+use App\Services\Stock\ResolveStockBalanceAction;
+use App\Services\Stock\SyncLegacyItemStockFromBalanceAction;
+use Illuminate\Support\Facades\DB;
 use Workflow\Activity;
 
 /**
  * Activity: Release reserved stock for a deleted order.
- * Finds the reservation by correlation_id, releases each item's reserved
- * quantity back to available, and marks the reservation as cancelled.
- * Idempotent — if no reservation exists or already released, succeeds silently.
  */
 class ReleaseStockActivity extends Activity
 {
     public function execute(string $correlationId, array $items): array
     {
-        // Find reservation for this order
-        $reservation = InventoryReservation::where('correlation_id', $correlationId)->first();
+        $resolveBalance = app(ResolveStockBalanceAction::class);
+        $syncLegacy = app(SyncLegacyItemStockFromBalanceAction::class);
 
-        $releasedItems = [];
+        return DB::transaction(function () use ($correlationId, $items, $resolveBalance, $syncLegacy) {
+            $reservation = InventoryReservation::where('correlation_id', $correlationId)
+                ->lockForUpdate()
+                ->first();
 
-        // Release stock for each item in the order
-        foreach ($items as $item) {
-            $productName = $item['product_name'] ?? 'Unknown';
-            $quantity = $item['quantity'] ?? 0;
+            $releasedItems = [];
 
-            if ($quantity <= 0) {
-                continue;
-            }
+            if ($reservation?->inventory_variation_id && $reservation->storage_location_id) {
+                $quantity = $reservation->reserved_quantity;
+                $balance = $resolveBalance->execute(
+                    $reservation->inventory_variation_id,
+                    null,
+                    $reservation->storage_location_id,
+                    true
+                );
 
-            $inventoryItem = InventoryItem::where('product_name', $productName)->first();
-
-            if ($inventoryItem && $inventoryItem->quantity_reserved >= $quantity) {
-                $inventoryItem->releaseStock($quantity);
+                if ($balance->quantity_reserved >= $quantity) {
+                    $balance->decrement('quantity_reserved', $quantity);
+                    $balance->increment('quantity_available', $quantity);
+                }
 
                 $releasedItems[] = [
-                    'product_name' => $productName,
+                    'product_name' => $reservation->product_name,
                     'quantity' => $quantity,
-                    'inventory_item_id' => $inventoryItem->id,
+                    'variation_id' => $reservation->inventory_variation_id,
                 ];
+            } else {
+                foreach ($items as $item) {
+                    $productName = $item['product_name'] ?? 'Unknown';
+                    $quantity = (int) ($item['quantity'] ?? 0);
+
+                    if ($quantity <= 0) {
+                        continue;
+                    }
+
+                    $inventoryItem = InventoryItem::where('product_name', $productName)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (! $inventoryItem || $inventoryItem->has_variations) {
+                        continue;
+                    }
+
+                    $locationId = $reservation?->storage_location_id
+                        ?? $resolveBalance->resolveLocationId($item['location_id'] ?? null);
+
+                    $balance = $resolveBalance->execute(null, $inventoryItem->id, $locationId, true);
+
+                    if ($balance->quantity_reserved >= $quantity) {
+                        $balance->decrement('quantity_reserved', $quantity);
+                        $balance->increment('quantity_available', $quantity);
+                        $syncLegacy->execute($inventoryItem, $balance->fresh());
+                    }
+
+                    $releasedItems[] = [
+                        'product_name' => $productName,
+                        'quantity' => $quantity,
+                        'inventory_item_id' => $inventoryItem->id,
+                    ];
+                }
             }
-        }
 
-        // Mark reservation as failed/cancelled if it exists
-        if ($reservation) {
-            $reservation->state->transitionTo(\App\States\FailedState::class);
-            $reservation->update([
-                'state_failure_description' => 'Order deleted — stock released',
-            ]);
-        }
+            if ($reservation) {
+                $reservation->state->transitionTo(\App\States\FailedState::class);
+                $reservation->update([
+                    'state_failure_description' => 'Order deleted — stock released',
+                ]);
+            }
 
-        return [
-            'released_items' => $releasedItems,
-            'reservation_cancelled' => $reservation !== null,
-        ];
+            return [
+                'released_items' => $releasedItems,
+                'reservation_cancelled' => $reservation !== null,
+            ];
+        });
     }
 }

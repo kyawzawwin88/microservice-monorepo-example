@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { inventoryApi, type InventoryItem, type InventoryReservation, type CreateInventoryPayload, type UpdateInventoryPayload } from '../api/inventory';
 import StatusBadge from '../components/StatusBadge';
 import Pagination from '../components/Pagination';
+import VariationProductForm from '../components/inventory/VariationProductForm';
+
+type CreateMode = 'simple' | 'variations';
 
 export default function Inventory() {
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -13,6 +17,7 @@ export default function Inventory() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'items' | 'reservations'>('items');
   const [showCreate, setShowCreate] = useState(false);
+  const [createMode, setCreateMode] = useState<CreateMode>('simple');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -74,6 +79,10 @@ export default function Inventory() {
   };
 
   const startEdit = (item: InventoryItem) => {
+    if (item.has_variations) {
+      setError('Variation products are managed on the product detail page. Click the product name to open it.');
+      return;
+    }
     setEditingItem(item);
     setEditForm({
       product_name: item.product_name,
@@ -132,14 +141,34 @@ export default function Inventory() {
           <p className="mt-1 text-sm text-gray-500">Manage products and view stock reservations</p>
         </div>
         <div className="flex gap-3">
+          <Link to="/inventory/locations" className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50">
+            Manage locations
+          </Link>
+          <Link to="/inventory/transfer" className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50">
+            Transfer stock
+          </Link>
           <button onClick={() => { fetchItems(); fetchReservations(); }} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             🔄 Refresh
           </button>
           <button
-            onClick={() => { setShowCreate(!showCreate); cancelEdit(); }}
+            onClick={() => {
+              setShowCreate(!showCreate);
+              cancelEdit();
+              if (!showCreate) setCreateMode('simple');
+            }}
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
           >
             + Add Product
+          </button>
+          <button
+            onClick={() => {
+              setShowCreate(true);
+              setCreateMode('variations');
+              cancelEdit();
+            }}
+            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500"
+          >
+            + Product with Variations
           </button>
         </div>
       </div>
@@ -158,7 +187,47 @@ export default function Inventory() {
       {/* Create Inventory Form */}
       {showCreate && (
         <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Add Inventory Product</h2>
+          <div className="flex gap-4 mb-4 border-b border-gray-200">
+            <button
+              type="button"
+              onClick={() => setCreateMode('simple')}
+              className={`pb-2 text-sm font-medium border-b-2 -mb-px ${
+                createMode === 'simple'
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Simple product
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreateMode('variations')}
+              className={`pb-2 text-sm font-medium border-b-2 -mb-px ${
+                createMode === 'variations'
+                  ? 'border-violet-600 text-violet-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Product with variations
+            </button>
+          </div>
+
+          {createMode === 'variations' ? (
+            <>
+              <h2 className="text-lg font-semibold mb-4">Add product with variations</h2>
+              <VariationProductForm
+                onCancel={() => setShowCreate(false)}
+                onSuccess={(msg) => {
+                  setSuccess(msg);
+                  setShowCreate(false);
+                  fetchItems(1);
+                }}
+                onError={(msg) => setError(msg)}
+              />
+            </>
+          ) : (
+            <>
+          <h2 className="text-lg font-semibold mb-4">Add simple inventory product</h2>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -214,6 +283,8 @@ export default function Inventory() {
               </button>
             </div>
           </form>
+            </>
+          )}
         </div>
       )}
 
@@ -305,6 +376,7 @@ export default function Inventory() {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Available</th>
@@ -315,20 +387,39 @@ export default function Inventory() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <tr><td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-400">Loading...</td></tr>
+                <tr><td colSpan={9} className="px-6 py-10 text-center text-sm text-gray-400">Loading...</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-400">No inventory items. Add one above!</td></tr>
+                <tr><td colSpan={9} className="px-6 py-10 text-center text-sm text-gray-400">No inventory items. Add one above!</td></tr>
               ) : (
                 items.map((item) => (
                   <tr key={item.id} className={`hover:bg-gray-50 ${editingItem?.id === item.id ? 'bg-indigo-50' : ''}`}>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">#{item.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{item.product_name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      <Link to={`/inventory/${item.id}`} className="text-indigo-600 hover:underline">{item.product_name}</Link>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      {item.has_variations ? (
+                        <span className="inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800">
+                          {item.variations_count ?? 0} variations
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Single stock
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 text-sm font-mono text-gray-500">{item.sku}</td>
                     <td className="px-6 py-4 text-sm text-gray-700 font-medium">${item.unit_price}</td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={item.quantity_available <= 0 ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
-                        {item.quantity_available}
-                      </span>
+                      {item.has_variations ? (
+                        <Link to={`/inventory/${item.id}`} className="text-indigo-600 hover:underline text-xs">
+                          View per variation →
+                        </Link>
+                      ) : (
+                        <span className={item.quantity_available <= 0 ? 'text-red-600 font-semibold' : 'text-green-600 font-semibold'}>
+                          {item.quantity_available}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-yellow-600">{item.quantity_reserved}</td>
                     <td className="px-6 py-4 text-xs text-gray-400">{new Date(item.updated_at).toLocaleString()}</td>

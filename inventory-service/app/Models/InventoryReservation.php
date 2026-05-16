@@ -15,6 +15,8 @@ class InventoryReservation extends Model
     protected $fillable = [
         'correlation_id',
         'order_id',
+        'inventory_variation_id',
+        'storage_location_id',
         'product_name',
         'quantity',
         'reserved_quantity',

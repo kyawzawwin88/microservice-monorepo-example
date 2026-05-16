@@ -5,21 +5,18 @@ namespace App\Activities;
 use App\Exceptions\InventoryProcessingException;
 use App\Models\InventoryItem;
 use App\Models\InventoryReservation;
+use App\Services\Stock\ResolveStockBalanceAction;
+use App\Services\Stock\SyncLegacyItemStockFromBalanceAction;
 use Illuminate\Support\Facades\DB;
 use Workflow\Activity;
 
 /**
  * Activity: Check and reserve stock for order items.
- *
- * Ensures idempotency by creating the InventoryReservation record
- * atomically with the stock modification inside a DB transaction.
- * On retry, the reservation already exists → skip.
  */
 class CheckStockActivity extends Activity
 {
     public function execute(string $correlationId, array $orderData): array
     {
-        // Idempotency: skip if reservation already exists for this correlation_id
         $existingReservation = InventoryReservation::where('correlation_id', $correlationId)->first();
         if ($existingReservation) {
             return [
@@ -30,13 +27,14 @@ class CheckStockActivity extends Activity
 
         $items = $orderData['items'] ?? [];
         $reservedItems = [];
+        $resolveBalance = app(ResolveStockBalanceAction::class);
+        $syncLegacy = app(SyncLegacyItemStockFromBalanceAction::class);
 
-        // Use a DB transaction to ensure stock modification + reservation
-        // creation happen atomically. On retry, the reservation will exist
-        // and the idempotency check above will prevent double-reservation.
-        DB::transaction(function () use ($correlationId, $orderData, $items, &$reservedItems) {
+        DB::transaction(function () use ($correlationId, $orderData, $items, &$reservedItems, $resolveBalance, $syncLegacy) {
             $totalQuantity = 0;
             $productNames = [];
+            $variationId = null;
+            $locationId = null;
 
             foreach ($items as $item) {
                 $productName = $item['product_name'] ?? 'Unknown';
@@ -46,28 +44,52 @@ class CheckStockActivity extends Activity
                     continue;
                 }
 
-                // Lock the row to prevent concurrent modifications
-                $inventoryItem = InventoryItem::where('product_name', $productName)
-                    ->lockForUpdate()
-                    ->first();
+                $itemVariationId = $item['variation_id'] ?? null;
+                $itemLocationId = $resolveBalance->resolveLocationId($item['location_id'] ?? null);
 
-                if (!$inventoryItem) {
-                    throw new InventoryProcessingException(
-                        "Inventory item not found: {$productName}",
-                        $correlationId
-                    );
+                if ($itemVariationId) {
+                    $balance = $resolveBalance->execute($itemVariationId, null, $itemLocationId, true);
+                    if ($balance->quantity_available < $quantity) {
+                        throw new InventoryProcessingException(
+                            "Insufficient stock for variation {$itemVariationId}. Available: {$balance->quantity_available}, Requested: {$quantity}",
+                            $correlationId
+                        );
+                    }
+                    $balance->decrement('quantity_available', $quantity);
+                    $balance->increment('quantity_reserved', $quantity);
+                    $variationId = $itemVariationId;
+                    $locationId = $itemLocationId;
+                } else {
+                    $inventoryItem = InventoryItem::where('product_name', $productName)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (! $inventoryItem) {
+                        throw new InventoryProcessingException(
+                            "Inventory item not found: {$productName}",
+                            $correlationId
+                        );
+                    }
+
+                    if ($inventoryItem->has_variations) {
+                        throw new InventoryProcessingException(
+                            "Variation required for product: {$productName}",
+                            $correlationId
+                        );
+                    }
+
+                    $balance = $resolveBalance->execute(null, $inventoryItem->id, $itemLocationId, true);
+                    if ($balance->quantity_available < $quantity) {
+                        throw new InventoryProcessingException(
+                            "Insufficient stock for product: {$productName}. Available: {$balance->quantity_available}, Requested: {$quantity}",
+                            $correlationId
+                        );
+                    }
+
+                    $balance->decrement('quantity_available', $quantity);
+                    $balance->increment('quantity_reserved', $quantity);
+                    $syncLegacy->execute($inventoryItem, $balance->fresh());
                 }
-
-                if ($inventoryItem->quantity_available < $quantity) {
-                    throw new InventoryProcessingException(
-                        "Insufficient stock for product: {$productName}. Available: {$inventoryItem->quantity_available}, Requested: {$quantity}",
-                        $correlationId
-                    );
-                }
-
-                // Reserve stock
-                $inventoryItem->decrement('quantity_available', $quantity);
-                $inventoryItem->increment('quantity_reserved', $quantity);
 
                 $totalQuantity += $quantity;
                 $productNames[] = $productName;
@@ -75,18 +97,18 @@ class CheckStockActivity extends Activity
                 $reservedItems[] = [
                     'product_name' => $productName,
                     'quantity' => $quantity,
-                    'inventory_item_id' => $inventoryItem->id,
+                    'variation_id' => $itemVariationId,
                 ];
             }
 
-            // Create the reservation record IN THE SAME TRANSACTION
-            // so that on retry, the idempotency check will find it.
             InventoryReservation::create([
                 'correlation_id' => $correlationId,
                 'order_id' => $orderData['order_id'],
                 'product_name' => implode(', ', $productNames),
                 'quantity' => $totalQuantity,
                 'reserved_quantity' => $totalQuantity,
+                'inventory_variation_id' => $variationId,
+                'storage_location_id' => $locationId,
             ]);
         });
 
