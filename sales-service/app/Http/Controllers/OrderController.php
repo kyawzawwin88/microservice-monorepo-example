@@ -40,7 +40,7 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
-            'customer_email' => 'nullable|email|max:255',
+            'customer_email' => 'required|email|max:255',
             'total_amount' => 'required|numeric|min:0.01',
             'items' => 'required|array|min:1',
             'items.*.product_name' => 'required|string',

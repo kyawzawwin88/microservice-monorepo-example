@@ -151,7 +151,7 @@ export default function Orders() {
     try {
       const payload: CreateOrderPayload = {
         customer_name: customerName,
-        customer_email: customerEmail || undefined,
+        customer_email: customerEmail,
         total_amount: total,
         items: items.map((i) => ({
           product_name: i.product_name,
@@ -296,13 +296,17 @@ export default function Orders() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Customer Email</label>
+                <label className="block text-sm font-medium text-gray-700">Customer Email *</label>
                 <input
                   type="email"
+                  required
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border px-3 py-2"
                 />
+                <p className="mt-1 text-xs text-gray-400">
+                  Required by Sales API validation.
+                </p>
               </div>
             </div>
 

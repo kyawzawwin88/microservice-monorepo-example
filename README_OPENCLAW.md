@@ -1,0 +1,1 @@
+/Applications/Google\ Chrome\ Dev.app/Contents/MacOS/Google\ Chrome\ Dev --remote-debugging-port=18800 --user-data-dir="openclaw-sales-manager-agent"

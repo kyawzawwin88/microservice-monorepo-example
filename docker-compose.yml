@@ -646,6 +646,106 @@ services:
     networks:
       - microservice-net
 
+  # ============================================
+  # OpenClaw Sales Manager Agent — AI E2E Test Automation
+  # Docs: https://docs.openclaw.ai/
+  # ============================================
+  # Uses host networking so the headless browser can access the UI
+  # and API services via localhost, just like a real browser on the host.
+  # The browser navigates to http://localhost:3000 (UI) and the UI's
+  # JavaScript calls http://localhost:800x (API services) — all of which
+  # are port-mapped to the host from their respective containers.
+  #
+  # Ports exposed directly on host (no 'ports:' mapping needed):
+  #   18789 — OpenClaw Gateway API + Control UI
+  #   18800 — Chromium CDP (connect from host Chrome via chrome://inspect)
+  # ============================================
+  openclaw-sales-manager-agent:
+    build:
+      context: ./openclaw-sales-manager-agent
+      dockerfile: Dockerfile
+    container_name: openclaw-sales-manager-agent
+    network_mode: host
+    volumes:
+      - ./openclaw-sales-manager-agent/workspace:/home/node/.openclaw/workspace
+      - openclaw_data:/home/node/.openclaw/state
+      - openclaw_browsers:/home/node/.cache/ms-playwright
+      - /Users/kyawzawwin/.openclaw/devices/paired.json:/home/node/.openclaw/devices/paired.json:ro
+    depends_on:
+      - ui
+      - sales-service
+      - inventory-service
+      - invoice-service
+      - payment-service
+    env_file:
+      - ./openclaw-sales-manager-agent/.env
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      PLAYWRIGHT_BROWSERS_PATH: /home/node/.cache/ms-playwright
+
+  # ============================================
+  # OpenClaw Sales Service Developer Agent — AI Coding Assistant
+  # ============================================
+  # Dedicated agent for making code changes in ./sales-service
+  # with isolated OpenClaw state/config from the manager agent.
+  #
+  # Ports exposed directly on host (no 'ports:' mapping needed):
+  #   18799 — OpenClaw Gateway API + Control UI (developer agent)
+  #   18810 — Chromium CDP profile endpoint for host Chrome Dev attach
+  # ============================================
+  openclaw-sales-service-developer-agent:
+    build:
+      context: .
+      dockerfile: ./openclaw-sales-service-developer-agent/Dockerfile
+    container_name: openclaw-sales-service-developer-agent
+    network_mode: host
+    volumes:
+      - ./openclaw-sales-service-developer-agent/workspace:/home/node/.openclaw/workspace
+      - ./openclaw-sales-service-developer-agent/paperclip-claimed-api-key.json:/home/node/.openclaw/workspace/paperclip-claimed-api-key.json:ro
+      - ./sales-service:/home/node/.openclaw/workspace/sales-service
+      - openclaw_sales_dev_data:/home/node/.openclaw/state
+      - openclaw_sales_dev_browsers:/home/node/.cache/ms-playwright
+    depends_on:
+      - sales-service
+      - mysql-sales
+      - mysql-eventbus
+      - redis
+    env_file:
+      - ./openclaw-sales-service-developer-agent/.env
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      PLAYWRIGHT_BROWSERS_PATH: /home/node/.cache/ms-playwright
+
+  # ============================================
+  # OpenClaw UI Developer Agent — React + Tailwind frontend
+  # ============================================
+  # Ports on host (network_mode: host):
+  #   18819 — Gateway API + Control UI
+  #   18830 — Chromium CDP for host Chrome Dev attach
+  # ============================================
+  openclaw-ui-developer-agent:
+    build:
+      context: .
+      dockerfile: ./openclaw-ui-developer-agent/Dockerfile
+    container_name: openclaw-ui-developer-agent
+    network_mode: host
+    volumes:
+      - ./openclaw-ui-developer-agent/workspace:/home/node/.openclaw/workspace
+      - ./openclaw-ui-developer-agent/paperclip-claimed-api-key.json:/home/node/.openclaw/workspace/paperclip-claimed-api-key.json:ro
+      - ./ui:/home/node/.openclaw/workspace/ui
+      - openclaw_ui_dev_data:/home/node/.openclaw/state
+      - openclaw_ui_dev_browsers:/home/node/.cache/ms-playwright
+    depends_on:
+      - ui
+    env_file:
+      - ./openclaw-ui-developer-agent/.env
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      PLAYWRIGHT_BROWSERS_PATH: /home/node/.cache/ms-playwright
+
 volumes:
   sales_data:
   invoice_data:
@@ -657,6 +757,12 @@ volumes:
   invoice_vendor:
   payment_vendor:
   inventory_vendor:
+  openclaw_data:
+  openclaw_browsers:
+  openclaw_sales_dev_data:
+  openclaw_sales_dev_browsers:
+  openclaw_ui_dev_data:
+  openclaw_ui_dev_browsers:
 
 networks:
   microservice-net:

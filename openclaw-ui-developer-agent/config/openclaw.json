@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.6-3",
+    "lastTouchedAt": "2026-04-03T00:00:00.000Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-04-03T00:00:00.000Z",
+    "lastRunVersion": "2026.2.6-3",
+    "lastRunCommand": "configure",
+    "lastRunMode": "local"
+  },
+  "auth": {
+    "profiles": {
+      "openai-codex:default": {
+        "provider": "openai-codex",
+        "mode": "oauth"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "fallbacks": [
+          "openai-codex/gpt-5.2"
+        ],
+        "primary": "openai-codex/gpt-5.2"
+      },
+      "models": {
+        "openai-codex": {},
+        "openai-codex/gpt-5.2": {}
+      },
+      "workspace": "/home/node/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "channels": {},
+  "gateway": {
+    "port": 18819,
+    "mode": "local",
+    "bind": "loopback",
+    "controlUi": {
+      "allowedOrigins": [
+        "http://127.0.0.1:18819",
+        "http://localhost:18819"
+      ]
+    },
+    "auth": {
+      "mode": "token",
+      "token": ""
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    }
+  },
+  "browser": {
+    "enabled": true,
+    "attachOnly": true,
+    "defaultProfile": "openclaw-ui-developer-agent",
+    "profiles": {
+      "openclaw-ui-developer-agent": {
+        "driver": "openclaw",
+        "cdpUrl": "http://127.0.0.1:18830",
+        "color": "#7C3AED"
+      }
+    }
+  },
+  "tools": {
+    "web": {
+      "search": {
+        "enabled": false
+      },
+      "fetch": {
+        "enabled": true
+      }
+    }
+  }
+}

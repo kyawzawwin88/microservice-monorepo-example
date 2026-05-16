@@ -234,3 +234,8 @@ The durable-workflow package supports [Waterline](https://durable-workflow.com) 
 - Trigger workflows manually from the UI
 - Inspect workflow execution history and activity results
 - Retry failed workflows
+
+<!-- to run remote browser in host -->
+
+/Applications/Google\ Chrome\ Dev.app/Contents/MacOS/Google\ Chrome\ Dev --remote-debugging-port=18800 --user-data-dir="$HOME/openclaw-sales-manager-agent" --profile-directory="openclaw-sales-manager-agent"
+(base) kyawzawwin@Kyaws-MacBook-Pro microservice-monorepo-example % 
