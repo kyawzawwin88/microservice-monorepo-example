@@ -23,11 +23,24 @@ class OrderController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(
-            Order::orderBy('created_at', 'desc')->paginate(20)
-        );
+        $validated = $request->validate([
+            'page' => 'sometimes|integer|min:1',
+        ]);
+
+        $page = $validated['page'] ?? 1;
+        $perPage = 20;
+
+        $paginator = Order::orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        if ($paginator->lastPage() > 0 && $paginator->currentPage() > $paginator->lastPage()) {
+            $paginator = Order::orderBy('created_at', 'desc')
+                ->paginate($perPage, ['*'], 'page', $paginator->lastPage());
+        }
+
+        return response()->json($paginator);
     }
 
     /**

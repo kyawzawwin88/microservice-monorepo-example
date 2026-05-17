@@ -1,0 +1,11 @@
+{
+  "name": "order-list-pagination-qa",
+  "private": true,
+  "scripts": {
+    "test": "playwright test --config=playwright.config.mjs",
+    "install-browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  }
+}

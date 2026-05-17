@@ -4,6 +4,13 @@ return [
     'default' => env('DB_CONNECTION', 'mysql'),
 
     'connections' => [
+        'sqlite' => [
+            'driver' => 'sqlite',
+            'database' => env('DB_DATABASE', ':memory:'),
+            'prefix' => '',
+            'foreign_key_constraints' => true,
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -22,7 +29,7 @@ return [
 
         // Shared event bus database for cross-service communication
         'eventbus' => [
-            'driver' => 'mysql',
+            'driver' => env('EVENTBUS_DB_DRIVER', 'mysql'),
             'host' => env('EVENTBUS_DB_HOST', '127.0.0.1'),
             'port' => env('EVENTBUS_DB_PORT', '3306'),
             'database' => env('EVENTBUS_DB_DATABASE', 'eventbus_db'),

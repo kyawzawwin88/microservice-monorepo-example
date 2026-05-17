@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "body": {
+    "message": "The page field must be an integer.",
+    "errors": {
+      "page": [
+        "The page field must be an integer."
+      ]
+    }
+  }
+}

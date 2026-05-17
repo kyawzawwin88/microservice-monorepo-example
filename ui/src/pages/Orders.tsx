@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { salesApi, type Order, type CreateOrderPayload, type OrderWorkflowResponse } from '../api/sales';
+import type { PaginatedResponse } from '../api/client';
 import { inventoryApi, type InventoryItem } from '../api/inventory';
 import StatusBadge from '../components/StatusBadge';
 import Pagination from '../components/Pagination';
@@ -38,6 +39,17 @@ export default function Orders() {
   // ── Auto-polling after actions (create, retry, deliver, delete) ──
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollCountRef = useRef(0);
+  const pageRef = useRef(page);
+  pageRef.current = page;
+
+  const applyPaginatedOrders = (res: PaginatedResponse<Order>, requestedPage: number) => {
+    setOrders(res.data);
+    setLastPage(res.last_page);
+    const resolvedPage = res.current_page ?? requestedPage;
+    if (resolvedPage !== pageRef.current) {
+      setPage(resolvedPage);
+    }
+  };
 
   const stopPolling = useCallback(() => {
     if (pollTimerRef.current) {
@@ -47,9 +59,11 @@ export default function Orders() {
     pollCountRef.current = 0;
   }, []);
 
-  const startPolling = useCallback((targetPage = 1) => {
+  const startPolling = useCallback((targetPage?: number) => {
     stopPolling();
-    setPage(targetPage);
+    if (targetPage !== undefined && targetPage !== pageRef.current) {
+      setPage(targetPage);
+    }
     pollCountRef.current = 0;
     pollTimerRef.current = setInterval(() => {
       pollCountRef.current += 1;
@@ -58,7 +72,7 @@ export default function Orders() {
         stopPolling();
         return;
       }
-      fetchOrdersSilent(targetPage);
+      fetchOrdersSilent(pageRef.current);
     }, 3000);
   }, [stopPolling]);
 
@@ -69,8 +83,7 @@ export default function Orders() {
     setLoading(true);
     try {
       const res = await salesApi.listOrders(p);
-      setOrders(res.data);
-      setLastPage(res.last_page);
+      applyPaginatedOrders(res, p);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load orders');
     }
@@ -78,11 +91,10 @@ export default function Orders() {
   };
 
   /** Silent fetch — no loading spinner, used by auto-poll */
-  const fetchOrdersSilent = async (p = page) => {
+  const fetchOrdersSilent = async (p = pageRef.current) => {
     try {
       const res = await salesApi.listOrders(p);
-      setOrders(res.data);
-      setLastPage(res.last_page);
+      applyPaginatedOrders(res, p);
     } catch {
       // silent
     }
@@ -166,7 +178,7 @@ export default function Orders() {
       setCustomerName('');
       setCustomerEmail('');
       setItems([{ inventory_item_id: '', product_name: '', quantity: 1, unit_price: 0 }]);
-      // Auto-poll page 1 so the new order appears and updates in real time
+      setPage(1);
       fetchOrders(1);
       startPolling(1);
     } catch (err: unknown) {
@@ -440,7 +452,11 @@ export default function Orders() {
         {loading ? (
           <div className="px-6 py-10 text-center text-sm text-gray-400">Loading...</div>
         ) : orders.length === 0 ? (
-          <div className="px-6 py-10 text-center text-sm text-gray-400">No orders yet. Create one to start!</div>
+          <div className="px-6 py-10 text-center text-sm text-gray-400">
+            {page > 1
+              ? 'No orders on this page. Try an earlier page or refresh the list.'
+              : 'No orders yet. Create one to start!'}
+          </div>
         ) : (
           <>
             {/* ── Mobile card layout (< lg) ── */}
