@@ -8,7 +8,7 @@
       "enabled": true,
       "priority": 10,
       "registered_commands": {
-        "cursor-agent": [
+        "claude": [
           "speckit.git.feature",
           "speckit.git.validate",
           "speckit.git.remote",
@@ -26,7 +26,7 @@
       "enabled": true,
       "priority": 10,
       "registered_commands": {
-        "cursor-agent": [
+        "claude": [
           "speckit.verify.run"
         ]
       },
@@ -40,7 +40,7 @@
       "enabled": true,
       "priority": 10,
       "registered_commands": {
-        "cursor-agent": [
+        "claude": [
           "speckit.qa.run"
         ]
       },
@@ -54,7 +54,7 @@
       "enabled": true,
       "priority": 10,
       "registered_commands": {
-        "cursor-agent": [
+        "claude": [
           "speckit.brownfield.scan",
           "speckit.brownfield.bootstrap",
           "speckit.brownfield.validate",
@@ -71,7 +71,7 @@
       "enabled": true,
       "priority": 10,
       "registered_commands": {
-        "cursor-agent": [
+        "claude": [
           "speckit.diagram.workflow",
           "speckit.diagram.status",
           "speckit.diagram.dependencies"
@@ -87,7 +87,7 @@
       "enabled": true,
       "priority": 10,
       "registered_commands": {
-        "cursor-agent": [
+        "claude": [
           "speckit.cost.track",
           "speckit.cost.report",
           "speckit.cost.budget",
@@ -97,6 +97,58 @@
       },
       "registered_skills": [],
       "installed_at": "2026-05-16T12:46:53.768780+00:00"
+    },
+    "preview": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:265b443fcfcd590faadedd3d3b5072a32486d62e04021b979e8e89292f39dfb6",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.preview.html"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-05-16T14:02:03.041930+00:00"
+    },
+    "branch-convention": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:7efe1bfce264c25a4eddce6d65aa74ebc63a532b82e2d82264155e82c39d3859",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.branch-convention.configure",
+          "speckit.branch-convention.validate",
+          "speckit.branch-convention.rename"
+        ],
+        "cursor-agent": [
+          "speckit.branch-convention.configure",
+          "speckit.branch-convention.validate",
+          "speckit.branch-convention.rename"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-05-17T00:11:21.757811+00:00"
+    },
+    "ship": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:7aeaac4af9046a3ac9773fa2ef6c8938beef9cc02d7b8f841e72f388ecbdae69",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.ship.run"
+        ],
+        "cursor-agent": [
+          "speckit.ship.run"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-05-17T00:46:07.129445+00:00"
     }
   }
 }

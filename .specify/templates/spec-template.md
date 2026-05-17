@@ -93,6 +93,47 @@ or `tasks/` subfolders; do not combine unrelated workflows in one directory.
 
 [Add more user stories as needed, each with an assigned priority]
 
+## Persona Scenarios *(mandatory — constitution Principle VI)*
+
+<!--
+  Use canonical persona names from .specify/memory/constitution.md (System Personas & Roles).
+  Include at least one scenario per persona whose workflows, data, or risks are touched.
+  Mark unaffected personas explicitly: "Not impacted — [reason]".
+  Each scenario: Persona, Goal, Given/When/Then, Risk exercised.
+-->
+
+### [Persona Name, e.g., Warehouse Manager]
+
+**Goal**: [What this persona accomplishes in this feature]
+
+**Risk exercised**: [e.g., Negative stock, inventory mismatch]
+
+1. **Given** [context], **When** [persona action], **Then** [observable outcome]
+2. **Given** [context], **When** [persona action], **Then** [observable outcome]
+
+### Personas not impacted
+
+- **[Persona]**: Not impacted — [brief reason]
+
+## Regression Impact Map *(mandatory — constitution Principle VI)*
+
+<!--
+  Trace propagation beyond the primary workflow. Required for field add/remove/rename,
+  UOM/quantity semantics, entity relationships, state transitions, cross-module contracts,
+  and permission changes. Severity: Low | Medium | High | Critical.
+-->
+
+| ID | Change | Impacted surface (module/API/UI/event/report) | Personas affected | Before → After | Severity | Regression test |
+|----|--------|-----------------------------------------------|-------------------|----------------|----------|-----------------|
+| RI-001 | [e.g., Add UOM on product variation] | [inventory-service API; sales order line; stock movement] | [Sales Representative, Warehouse Manager] | [describe] | [High] | [PHPUnit/Vitest/QA ref] |
+| RI-002 | [e.g., Remove optional field X] | [surface] | [personas] | [describe] | [Medium] | [test ref] |
+
+### Cross-module impact summary
+
+- **Primary module**: [module]
+- **Downstream consumers**: [list modules/workflows that MUST be regression-tested]
+- **Events / contracts affected**: [if any]
+
 ### Edge Cases
 
 <!--

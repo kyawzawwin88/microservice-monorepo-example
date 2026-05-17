@@ -1,0 +1,8 @@
+{
+  "status": 202,
+  "body": {
+    "message": "Order deletion workflow initiated. Reserved inventory will be released.",
+    "correlation_id": "03492b0e-f210-4218-a7cb-4cd00ba36fc3",
+    "workflow_id": 33
+  }
+}

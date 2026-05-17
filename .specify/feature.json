@@ -1,3 +1,3 @@
 {
-  "feature_directory": "specs/inventory-service/storage-locations/location-address"
+  "feature_directory": "specs/sales-service/orders/order-list-pagination"
 }

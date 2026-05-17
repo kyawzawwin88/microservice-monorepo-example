@@ -1,4 +1,7 @@
-installed: []
+installed:
+- branch-convention
+- preview
+- ship
 settings:
   auto_execute_hooks: true
 hooks:
@@ -17,6 +20,14 @@ hooks:
     optional: false
     prompt: Execute speckit.git.feature?
     description: Create feature branch before specification
+    condition: null
+  - extension: branch-convention
+    command: speckit.branch-convention.validate
+    enabled: true
+    optional: true
+    prompt: Validate branch naming convention before creating new feature?
+    description: Check naming convention compliance before /specify creates a new
+      branch
     condition: null
   before_clarify:
   - extension: git
@@ -143,6 +154,14 @@ hooks:
     prompt: Run QA testing?
     description: Validates acceptance criteria through browser-driven or CLI-based
       testing
+    condition: null
+  - extension: ship
+    command: speckit.ship.run
+    enabled: true
+    optional: true
+    prompt: Ship this feature?
+    description: Runs pre-flight checks, syncs branches, generates changelog, and
+      creates PR
     condition: null
   after_checklist:
   - extension: git

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prototype — Warehouse Location (address)</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --surface: #fff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --danger: #dc2626;
+      --success-bg: #ecfdf5;
+      --success-text: #065f46;
+      --error-bg: #fef2f2;
+      --error-text: #991b1b;
+      --focus: #818cf8;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+    }
+    a { color: var(--primary); }
+    a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .shell { max-width: 960px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+    .breadcrumb { font-size: 13px; margin-bottom: 1rem; }
+    header.page-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+    .subtitle { margin: .25rem 0 0; color: var(--muted); font-size: 13px; }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 { margin: 0 0 .75rem; font-size: 1.05rem; font-weight: 600; }
+    .banner {
+      padding: .75rem 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      font-size: 13px;
+    }
+    .banner.success { background: var(--success-bg); color: var(--success-text); }
+    .banner.error { background: var(--error-bg); color: var(--error-text); }
+    .banner[hidden] { display: none; }
+    .form-grid {
+      display: grid;
+      gap: .75rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .span-2 { grid-column: 1 / -1; }
+    }
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: .25rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: .5rem .75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font: inherit;
+      background: #fff;
+    }
+    input.invalid, select.invalid, textarea.invalid { border-color: var(--danger); }
+    .field-error {
+      margin: .25rem 0 0;
+      font-size: 12px;
+      color: var(--danger);
+    }
+    .field-error:empty { display: none; }
+    textarea { min-height: 4.5rem; resize: vertical; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 1px;
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border-radius: var(--radius);
+      padding: .5rem 1rem;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--primary); color: #fff; font-weight: 600; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-secondary { background: #fff; border-color: var(--border); color: var(--text); }
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--primary);
+      padding: 0;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: underline;
+    }
+    .btn-danger-link {
+      background: none;
+      border: none;
+      color: var(--danger);
+      padding: 0;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: underline;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: .65rem 1rem; text-align: left; border-bottom: 1px solid #f3f4f6; }
+    th { background: #f9fafb; font-weight: 500; color: var(--muted); }
+    tr.editing { background: #eef2ff; }
+    tr.inactive { background: #f9fafb; }
+    .mono { font-family: ui-monospace, monospace; color: var(--muted); }
+    .badge {
+      display: inline-block;
+      padding: .1rem .5rem;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge.active { background: #d1fae5; color: #065f46; }
+    .badge.inactive { background: #e5e7eb; color: #374151; }
+    .address-cell { max-width: 220px; color: var(--muted); }
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      background: #f9fafb;
+    }
+    .empty-state p { margin: .5rem 0; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 50;
+    }
+    .modal-backdrop[hidden] { display: none; }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,.15);
+    }
+    .modal h3 { margin: 0 0 .5rem; font-size: 1.1rem; }
+    .modal p { margin: 0; font-size: 13px; color: var(--muted); }
+    .modal-actions { margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: .5rem; }
+    .assumptions {
+      margin-top: 1.5rem;
+      border: 1px dashed #c4b5fd;
+      background: #faf5ff;
+      border-radius: var(--radius);
+      padding: .75rem 1rem;
+      font-size: 12px;
+    }
+    .assumptions summary { cursor: pointer; font-weight: 600; color: #5b21b6; }
+    .assumptions ul { margin: .5rem 0 0; padding-left: 1.25rem; color: #4c1d95; }
+    .proto-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      background: #fef3c7;
+      color: #92400e;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      margin-left: .5rem;
+      vertical-align: middle;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+    @media (max-width: 639px) {
+      th:nth-child(3), td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#" id="back-link">← Inventory</a>
+    </nav>
+
+    <header class="page-header">
+      <div>
+        <h1>Warehouse Location <span class="proto-tag">Prototype</span></h1>
+        <p class="subtitle">Manage warehouses and sites used for stock-in, transfers, and variation inventory.</p>
+      </div>
+      <label class="toggle-row">
+        <input type="checkbox" id="show-inactive" />
+        Show inactive
+      </label>
+    </header>
+
+    <div id="banner-success" class="banner success" role="status" hidden></div>
+    <div id="banner-error" class="banner error" role="alert" hidden></div>
+
+    <section class="card" id="form-section" aria-labelledby="form-heading">
+      <h2 id="form-heading">Add location</h2>
+      <p id="edit-hint" class="subtitle" hidden></p>
+      <form id="location-form" novalidate>
+        <div class="form-grid">
+          <div>
+            <label for="loc-name">Name *</label>
+            <input id="loc-name" name="name" type="text" autocomplete="organization" placeholder="Main Warehouse" required />
+            <p class="field-error" id="err-name" role="alert"></p>
+          </div>
+          <div>
+            <label for="loc-code">Code *</label>
+            <input id="loc-code" name="code" type="text" class="mono" placeholder="WH-MAIN" required />
+            <p class="field-error" id="err-code" role="alert"></p>
+          </div>
+          <div class="span-2">
+            <label for="loc-street">Street / locality</label>
+            <textarea id="loc-street" name="street" placeholder="Building, street, city (optional)"></textarea>
+            <p class="field-error" id="err-street" role="alert"></p>
+          </div>
+          <div>
+            <label for="loc-country">Country</label>
+            <select id="loc-country" name="country">
+              <option value="">— Select country —</option>
+            </select>
+            <p class="field-error" id="err-country" role="alert"></p>
+          </div>
+          <div>
+            <label for="loc-postal">Postal code</label>
+            <input id="loc-postal" name="postal" type="text" placeholder="e.g. 94103" />
+            <p class="field-error" id="err-postal" role="alert"></p>
+          </div>
+          <div class="span-2 btn-row">
+            <button type="submit" class="btn-primary" id="submit-btn">Create location</button>
+            <button type="button" class="btn-secondary" id="cancel-edit" hidden>Cancel</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="list-heading">
+      <h2 id="list-heading">Locations</h2>
+      <div id="loading" class="subtitle" hidden>Loading locations…</div>
+      <div id="empty-state" class="empty-state" hidden>
+        <p><strong>No storage locations yet</strong></p>
+        <p class="subtitle">Create a location before recording stock movements or variation inventory.</p>
+      </div>
+      <div class="table-wrap" id="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Code</th>
+              <th scope="col">Address</th>
+              <th scope="col">Status</th>
+              <th scope="col" style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="location-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="assumptions">
+      <summary>Prototype assumptions &amp; open questions</summary>
+      <ul>
+        <li>Country picker is a standard select in this prototype; production UI may add typeahead search (UI-003).</li>
+        <li>Sample locations are fictional prototype data, not live inventory records.</li>
+        <li>Stock movement dropdowns continue to show name + code only (address not in selectors per spec).</li>
+        <li>Deactivation is blocked when stock remains; prototype simulates one stocked site.</li>
+        <li>Maps, geocoding, and per-country postal regex are out of scope.</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="modal-backdrop" id="deactivate-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h3 id="modal-title">Deactivate location?</h3>
+      <p id="modal-body"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+        <button type="button" class="btn-primary" id="modal-confirm" style="background:var(--danger)">Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const COUNTRIES = [
+        { code: 'US', name: 'United States' },
+        { code: 'CA', name: 'Canada' },
+        { code: 'GB', name: 'United Kingdom' },
+        { code: 'DE', name: 'Germany' },
+        { code: 'MM', name: 'Myanmar' },
+        { code: 'SG', name: 'Singapore' },
+      ];
+      const STREET_MAX = 500;
+      const POSTAL_RE = /^[A-Za-z0-9 -]{2,20}$/;
+
+      let locations = [
+        {
+          id: 1,
+          name: 'Main Warehouse',
+          code: 'WH-MAIN',
+          street: '400 Market St\nFloor 2, San Francisco',
+          country: 'US',
+          postal: '94105',
+          active: true,
+          stock: 0,
+        },
+        {
+          id: 2,
+          name: 'West Hub',
+          code: 'WEST-01',
+          street: 'Dock 7, Industrial Park',
+          country: '',
+          postal: '',
+          active: true,
+          stock: 12,
+        },
+        {
+          id: 3,
+          name: 'Store Backroom',
+          code: 'STORE-01',
+          street: '',
+          country: '',
+          postal: '',
+          active: true,
+          stock: 0,
+        },
+        {
+          id: 4,
+          name: 'Closed Annex',
+          code: 'ANNEX-OLD',
+          street: '12 Old Mill Rd',
+          country: 'GB',
+          postal: 'SW1A 1AA',
+          active: false,
+          stock: 0,
+        },
+      ];
+
+      let editingId = null;
+      let deactivateId = null;
+      let nextId = 5;
+
+      const els = {
+        showInactive: document.getElementById('show-inactive'),
+        form: document.getElementById('location-form'),
+        formHeading: document.getElementById('form-heading'),
+        editHint: document.getElementById('edit-hint'),
+        name: document.getElementById('loc-name'),
+        code: document.getElementById('loc-code'),
+        street: document.getElementById('loc-street'),
+        country: document.getElementById('loc-country'),
+        postal: document.getElementById('loc-postal'),
+        submit: document.getElementById('submit-btn'),
+        cancel: document.getElementById('cancel-edit'),
+        rows: document.getElementById('location-rows'),
+        empty: document.getElementById('empty-state'),
+        tableWrap: document.getElementById('table-wrap'),
+        success: document.getElementById('banner-success'),
+        error: document.getElementById('banner-error'),
+        modal: document.getElementById('deactivate-modal'),
+        modalBody: document.getElementById('modal-body'),
+        modalCancel: document.getElementById('modal-cancel'),
+        modalConfirm: document.getElementById('modal-confirm'),
+        err: {
+          name: document.getElementById('err-name'),
+          code: document.getElementById('err-code'),
+          street: document.getElementById('err-street'),
+          country: document.getElementById('err-country'),
+          postal: document.getElementById('err-postal'),
+        },
+      };
+
+      COUNTRIES.forEach((c) => {
+        const opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c.name + ' (' + c.code + ')';
+        els.country.appendChild(opt);
+      });
+
+      function countryLabel(code) {
+        const c = COUNTRIES.find((x) => x.code === code);
+        return c ? c.name : code;
+      }
+
+      function formatAddress(loc) {
+        const street = (loc.street || '').trim();
+        const country = (loc.country || '').trim();
+        const postal = (loc.postal || '').trim();
+        if (!street && !country && !postal) return 'No address on file';
+        const parts = [];
+        if (street) {
+          const short = street.length > 60 ? street.slice(0, 57) + '…' : street;
+          parts.push(short.replace(/\n/g, ', '));
+        }
+        if (country) {
+          const label = countryLabel(country);
+          parts.push(postal ? label + ' ' + postal : label);
+        } else if (postal) {
+          parts.push('Postal: ' + postal + ' (country missing)');
+        }
+        const missing = [];
+        if (street && !country) missing.push('country');
+        let summary = parts.join(' · ');
+        if (missing.length) summary += ' (' + missing.join(', ') + ' not set)';
+        return summary;
+      }
+
+      function showBanner(el, message) {
+        els.success.hidden = true;
+        els.error.hidden = true;
+        if (!message) return;
+        el.textContent = message;
+        el.hidden = false;
+      }
+
+      function clearFieldErrors() {
+        Object.values(els.err).forEach((n) => { n.textContent = ''; });
+        [els.name, els.code, els.street, els.country, els.postal].forEach((i) => i.classList.remove('invalid'));
+      }
+
+      function setFieldError(field, message) {
+        const map = { name: els.name, code: els.code, street: els.street, country: els.country, postal: els.postal };
+        const errMap = els.err;
+        map[field].classList.add('invalid');
+        errMap[field].textContent = message;
+      }
+
+      function validateForm(data) {
+        clearFieldErrors();
+        let ok = true;
+        let firstMsg = '';
+        if (!data.name) {
+          setFieldError('name', 'Name is required.');
+          firstMsg = firstMsg || 'Name is required.';
+          ok = false;
+        }
+        if (!data.code) {
+          setFieldError('code', 'Code is required.');
+          firstMsg = firstMsg || 'Code is required.';
+          ok = false;
+        } else if (!/^[A-Za-z0-9_-]+$/.test(data.code)) {
+          setFieldError('code', 'Code may only contain letters, numbers, hyphens, and underscores.');
+          firstMsg = firstMsg || 'Invalid code.';
+          ok = false;
+        } else if (
+          locations.some((l) => l.code.toUpperCase() === data.code.toUpperCase() && l.id !== editingId)
+        ) {
+          setFieldError('code', 'The code has already been taken.');
+          firstMsg = firstMsg || 'Duplicate code.';
+          ok = false;
+        }
+        if (data.street.length > STREET_MAX) {
+          setFieldError('street', 'Street or locality must be 500 characters or fewer.');
+          firstMsg = firstMsg || 'Street too long.';
+          ok = false;
+        }
+        if (data.postal && !POSTAL_RE.test(data.postal)) {
+          setFieldError('postal', 'Postal code must be 2–20 characters (letters, numbers, spaces, hyphens).');
+          firstMsg = firstMsg || 'Invalid postal code.';
+          ok = false;
+        }
+        if (data.postal && !data.country) {
+          setFieldError('country', 'Country is required when a postal code is provided.');
+          firstMsg = firstMsg || 'Country required with postal code.';
+          ok = false;
+        }
+        return { ok, firstMsg };
+      }
+
+      function readForm() {
+        return {
+          name: els.name.value.trim(),
+          code: els.code.value.trim().toUpperCase(),
+          street: els.street.value.trim(),
+          country: els.country.value.trim().toUpperCase(),
+          postal: els.postal.value.trim(),
+        };
+      }
+
+      function resetForm() {
+        editingId = null;
+        els.form.reset();
+        els.formHeading.textContent = 'Add location';
+        els.editHint.hidden = true;
+        els.submit.textContent = 'Create location';
+        els.cancel.hidden = true;
+        clearFieldErrors();
+      }
+
+      function startEdit(id) {
+        const loc = locations.find((l) => l.id === id);
+        if (!loc) return;
+        editingId = id;
+        els.name.value = loc.name;
+        els.code.value = loc.code;
+        els.street.value = loc.street;
+        els.country.value = loc.country;
+        els.postal.value = loc.postal;
+        els.formHeading.textContent = 'Edit location';
+        els.editHint.textContent = 'Editing ' + loc.name + ' (' + loc.code + '). Changes apply when you save.';
+        els.editHint.hidden = false;
+        els.submit.textContent = 'Save changes';
+        els.cancel.hidden = false;
+        clearFieldErrors();
+        document.getElementById('form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        render();
+      }
+
+      function render() {
+        const showAll = els.showInactive.checked;
+        const visible = locations
+          .filter((l) => showAll || l.active)
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        els.empty.hidden = visible.length > 0;
+        els.tableWrap.hidden = visible.length === 0;
+        els.rows.innerHTML = '';
+
+        visible.forEach((loc) => {
+          const tr = document.createElement('tr');
+          if (!loc.active) tr.classList.add('inactive');
+          if (editingId === loc.id) tr.classList.add('editing');
+
+          tr.innerHTML =
+            '<td><strong>' + escapeHtml(loc.name) + '</strong></td>' +
+            '<td class="mono">' + escapeHtml(loc.code) + '</td>' +
+            '<td class="address-cell" title="' + escapeAttr(loc.street) + '">' + escapeHtml(formatAddress(loc)) + '</td>' +
+            '<td><span class="badge ' + (loc.active ? 'active' : 'inactive') + '">' +
+            (loc.active ? 'Active' : 'Inactive') + '</span></td>' +
+            '<td style="text-align:right"></td>';
+
+          const actions = tr.lastElementChild;
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'btn-link';
+          editBtn.textContent = editingId === loc.id ? 'Editing…' : 'Edit';
+          editBtn.addEventListener('click', () => startEdit(loc.id));
+          actions.appendChild(editBtn);
+
+          if (loc.active) {
+            actions.appendChild(document.createTextNode(' '));
+            const deact = document.createElement('button');
+            deact.type = 'button';
+            deact.className = 'btn-danger-link';
+            deact.textContent = 'Deactivate';
+            deact.addEventListener('click', () => openDeactivate(loc.id));
+            actions.appendChild(deact);
+          }
+
+          els.rows.appendChild(tr);
+        });
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+      function escapeAttr(s) {
+        return escapeHtml(s).replace(/"/g, '&quot;');
+      }
+
+      function openDeactivate(id) {
+        const loc = locations.find((l) => l.id === id);
+        if (!loc) return;
+        deactivateId = id;
+        els.modalBody.textContent =
+          '"' + loc.name + '" (' + loc.code + ') will no longer appear in stock movement selectors. ' +
+          'Historical data is preserved. Deactivation is blocked if stock remains at this site.';
+        els.modal.hidden = false;
+        els.modalConfirm.focus();
+      }
+
+      function closeDeactivate() {
+        deactivateId = null;
+        els.modal.hidden = true;
+      }
+
+      els.form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const data = readForm();
+        const { ok, firstMsg } = validateForm(data);
+        if (!ok) {
+          showBanner(els.error, firstMsg);
+          return;
+        }
+
+        if (editingId) {
+          const loc = locations.find((l) => l.id === editingId);
+          Object.assign(loc, {
+            name: data.name,
+            code: data.code,
+            street: data.street,
+            country: data.country,
+            postal: data.postal,
+          });
+          showBanner(els.success, 'Location updated');
+        } else {
+          locations.push({
+            id: nextId++,
+            name: data.name,
+            code: data.code,
+            street: data.street,
+            country: data.country,
+            postal: data.postal,
+            active: true,
+            stock: 0,
+          });
+          showBanner(els.success, 'Location created');
+        }
+        resetForm();
+        render();
+      });
+
+      els.cancel.addEventListener('click', resetForm);
+      els.showInactive.addEventListener('change', render);
+
+      els.modalCancel.addEventListener('click', closeDeactivate);
+      els.modalConfirm.addEventListener('click', function () {
+        const loc = locations.find((l) => l.id === deactivateId);
+        if (!loc) return closeDeactivate();
+        if (loc.stock > 0) {
+          closeDeactivate();
+          showBanner(els.error, 'Cannot deactivate "' + loc.name + '" while it still has available or reserved stock.');
+          return;
+        }
+        loc.active = false;
+        if (editingId === loc.id) resetForm();
+        closeDeactivate();
+        showBanner(els.success, '"' + loc.name + '" deactivated');
+        render();
+      });
+
+      els.modal.addEventListener('click', function (ev) {
+        if (ev.target === els.modal) closeDeactivate();
+      });
+
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && !els.modal.hidden) closeDeactivate();
+      });
+
+      [els.name, els.code, els.street, els.country, els.postal].forEach((input) => {
+        input.addEventListener('input', clearFieldErrors);
+      });
+
+      document.getElementById('back-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        showBanner(els.success, 'Prototype: navigation to Inventory is not wired.');
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

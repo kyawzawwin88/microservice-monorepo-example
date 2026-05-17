@@ -29,6 +29,10 @@ specs/{module}/{domain}/{workflow}/
 
 Search existing specs before creating a new workflow folder (constitution Principle IV).
 
+Every `spec.md` (new or amended) MUST include **Persona Scenarios** and a
+**Regression Impact Map** per constitution Principle VI. Use canonical persona
+names from `.specify/memory/constitution.md` (System Personas & Roles).
+
 ## Inter-agent communication
 
 | Need | Mechanism |
@@ -64,4 +68,5 @@ docker-compose up -d                    # manual QA
 1. One **primary** spec under the owning module path.
 2. `plan.md` lists concrete paths in each module.
 3. `tasks.md` groups phases by module or uses `[P]` for parallel backend/UI tasks.
-4. Constitution Check in `plan.md` documents cross-module scope.
+4. Constitution Check in `plan.md` documents cross-module scope, persona coverage,
+   and High/Critical regression items from the spec impact map.

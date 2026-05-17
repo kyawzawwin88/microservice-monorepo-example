@@ -34,6 +34,8 @@ Defaults for this monorepo — override only what differs for this feature:
 - [ ] **Single responsibility**: New `*Action` / `*Activity` classes each do one thing; workflows orchestrate only.
 - [ ] **Unit tests**: PHPUnit and/or Vitest planned for every new/changed function.
 - [ ] **Stack**: Laravel + React/Tailwind only, unless justified in Complexity Tracking.
+- [ ] **Persona scenarios**: Spec lists scenarios for every touched persona; unaffected personas marked.
+- [ ] **Regression impact map**: Spec RI-* rows reviewed; High/Critical items have planned tests in tasks.md.
 
 ## Project Structure
 

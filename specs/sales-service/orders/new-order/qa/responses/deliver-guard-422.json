@@ -1,0 +1,3 @@
+{
+  "message": "Cannot deliver order — current status is 'submitted'. Only 'paid' orders can be delivered."
+}

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/inventory/locations)",
+      "Bash(php artisan:*)",
+      "Bash(./vendor/bin/phpunit --filter=\"location|Location|address|Address\")",
+      "Bash(curl -s \"http://localhost:3000/svc/inventory/api/inventory/locations?all=1\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(./vendor/bin/phpunit:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright:*)",
+      "Bash(node_modules/.bin/playwright test:*)",
+      "Bash(npm install:*)",
+      "Bash(node_modules/.bin/playwright install:*)",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Full Addr\",\"code\":\"QA-FULL-001\",\"address_street\":\"123 Main St\\\\nUnit 5\",\"country_code\":\"US\",\"postal_code\":\"10001\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Bad Postal\",\"code\":\"QA-BAD-POSTAL-001\",\"postal_code\":\"12345\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA No Addr\",\"code\":\"QA-NOADDR-001\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Bad Country\",\"code\":\"QA-BAD-COUNTRY-001\",\"country_code\":\"XX\",\"postal_code\":\"12345\"}')",
+      "Bash(python3 -c \"print\\('A'*501\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Long Street\",\"code\":\"QA-LONGST-001\",\"address_street\":\"__TRACKED_VAR__\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Bad PostalFmt\",\"code\":\"QA-BADFMT-001\",\"country_code\":\"US\",\"postal_code\":\"!@#$%\"}')",
+      "Bash(curl -s -X PUT http://localhost:3000/svc/inventory/api/inventory/locations/20 -H 'Content-Type: application/json' -d '{\"name\":\"QA Full Addr\",\"code\":\"QA-FULL-001\",\"country_code\":\"GB\",\"postal_code\":\"SW1A 1AA\",\"address_street\":\"10 Downing St\"}')",
+      "Bash(curl -s -X PUT http://localhost:3000/svc/inventory/api/inventory/locations/21 -H 'Content-Type: application/json' -d '{\"name\":\"QA No Addr\",\"code\":\"QA-NOADDR-001\",\"address_street\":\"\",\"country_code\":\"\",\"postal_code\":\"\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Country Only\",\"code\":\"QA-CTRY-001\",\"country_code\":\"JP\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"QA Whitespace\",\"code\":\"QA-WS-001\",\"address_street\":\"   \",\"postal_code\":\"   \"}')",
+      "Bash(curl -s -X POST http://localhost:3000/svc/inventory/api/inventory/locations -H 'Content-Type: application/json' -d '{\"name\":\"Dup Test\",\"code\":\"QA-FULL-001\",\"country_code\":\"US\"}')",
+      "Bash(curl:*)",
+      "Bash(mkdir -p /Users/kyawzawwin/Desktop/working/github/microservice-monorepo-example/specs/inventory-service/storage-locations/location-address/qa/screenshots)",
+      "Bash(mkdir -p /Users/kyawzawwin/Desktop/working/github/microservice-monorepo-example/specs/inventory-service/storage-locations/location-address/qa/responses)"
+    ]
+  }
+}

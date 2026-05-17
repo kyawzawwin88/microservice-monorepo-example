@@ -1,0 +1,3 @@
+{
+  "message": "Cannot retry order — current state is 'completed'. Only 'failed' orders can be retried."
+}

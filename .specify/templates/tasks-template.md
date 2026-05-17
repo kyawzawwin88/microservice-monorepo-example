@@ -156,7 +156,21 @@ Examples (delete/adapt per feature):
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase N: Persona & Regression Verification *(mandatory — constitution Principle VI)*
+
+**Purpose**: Validate persona scenarios and Regression Impact Map (RI-*) from spec.md
+
+- [ ] TXXX Execute persona scenarios for [Persona 1] — [manual QA or automated path]
+- [ ] TXXX Execute persona scenarios for [Persona 2] — [manual QA or automated path]
+- [ ] TXXX [P] Regression test for RI-001 ([High/Critical]) in `{service}/tests/...` or `ui/...`
+- [ ] TXXX [P] Regression test for RI-002 ([High/Critical]) in `{service}/tests/...`
+- [ ] TXXX Confirm unaffected personas still behave as documented in spec
+
+**Checkpoint**: All High/Critical RI rows have passing tests or documented QA evidence
+
+---
+
+## Phase N+1: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
