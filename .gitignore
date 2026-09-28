@@ -33,3 +33,4 @@ openclaw-*/workspace/paperclip-claimed-api-key.json
 openclaw-*/state/devices/
 openclaw-*/state/identity/
 openclaw-*/state/agents/main/agent/auth-profiles.json
+openclaw-*/state/agents/main/sessions/
