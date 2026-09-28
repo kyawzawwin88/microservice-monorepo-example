@@ -26,6 +26,7 @@ EOF
 fi
 
 if [ -n "${PAPERCLIP_API_KEY:-}" ]; then
+  mkdir -p "$(dirname "${PAPERCLIP_FILE}")"
   cat > "${PAPERCLIP_FILE}" <<EOF
 {
   "PAPERCLIP_API_KEY": "${PAPERCLIP_API_KEY}",
