@@ -57,7 +57,6 @@ RUN mkdir -p /home/node/.openclaw/state \
 
 COPY openclaw-sales-service-developer-agent/config/openclaw.json /home/node/.openclaw/openclaw.json
 COPY openclaw-sales-service-developer-agent/workspace/ /home/node/.openclaw/workspace/
-COPY openclaw-sales-service-developer-agent/paperclip-claimed-api-key.json /home/node/.openclaw/workspace/paperclip-claimed-api-key.json
 COPY .cursor/mcp.json /home/node/.openclaw/workspace/sales-service/.cursor/mcp.json
 COPY .cursor/rules/ /home/node/.openclaw/workspace/sales-service/.cursor/rules/
 COPY openclaw-sales-service-developer-agent/docker-entrypoint.sh /home/node/docker-entrypoint.sh

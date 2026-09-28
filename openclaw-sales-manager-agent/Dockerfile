@@ -59,6 +59,7 @@ ENV OPENCLAW_STATE_DIR=/home/node/.openclaw/state
 RUN mkdir -p /home/node/.openclaw/state \
              /home/node/.openclaw/state/agents/main/agent \
              /home/node/.openclaw/agents/sales-manager/sessions \
+             /home/node/.openclaw/devices \
              /home/node/.openclaw/credentials
 
 COPY config/openclaw.json /home/node/.openclaw/openclaw.json

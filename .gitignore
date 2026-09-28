@@ -5,6 +5,7 @@
 # Laravel
 */vendor/
 */node_modules/
+.env
 */.env
 */storage/logs/*
 */storage/framework/cache/*
@@ -26,3 +27,11 @@ Thumbs.db
 *.log
 .cursor
 .specstory
+
+# OpenClaw generated secrets/state
+openclaw-*/paperclip-claimed-api-key.json
+openclaw-*/workspace/paperclip-claimed-api-key.json
+openclaw-*/state/devices/
+openclaw-*/state/identity/
+openclaw-*/state/agents/main/agent/auth-profiles.json
+openclaw-*/state/agents/main/sessions/

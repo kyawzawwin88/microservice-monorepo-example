@@ -3,6 +3,8 @@ set -eu
 
 AUTH_FILE="${OPENCLAW_STATE_DIR}/agents/main/agent/auth-profiles.json"
 AUTH_DIR="$(dirname "${AUTH_FILE}")"
+PAPERCLIP_FILE="/home/node/.openclaw/workspace/paperclip-claimed-api-key.json"
+PAPERCLIP_NAME="openclaw-ui-developer-agent"
 
 mkdir -p "${AUTH_DIR}"
 
@@ -22,6 +24,13 @@ if [ -n "${OPENCLAW_AUTH_PROFILE_ACCESS:-}" ] && [ -n "${OPENCLAW_AUTH_PROFILE_R
   }
 }
 EOF
+fi
+
+if [ -n "${PAPERCLIP_API_KEY:-}" ]; then
+  mkdir -p "$(dirname "${PAPERCLIP_FILE}")"
+  (umask 077 && PAPERCLIP_FILE="${PAPERCLIP_FILE}" PAPERCLIP_NAME="${PAPERCLIP_NAME}" PAPERCLIP_API_KEY="${PAPERCLIP_API_KEY}" node -e 'const fs = require("fs"); fs.writeFileSync(process.env.PAPERCLIP_FILE, JSON.stringify({ PAPERCLIP_API_KEY: process.env.PAPERCLIP_API_KEY, name: process.env.PAPERCLIP_NAME }, null, 2) + "\n");')
+else
+  rm -f "${PAPERCLIP_FILE}"
 fi
 
 exec openclaw gateway run --bind lan --port 18819 --allow-unconfigured

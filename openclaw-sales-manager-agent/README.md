@@ -1,8 +1,11 @@
-export OPENCLAW_CONFIG_PATH=~/Desktop/working/github/microservice-monorepo-example/openclaw-sales-manager-agent/config/openclaw.json
-export OPENCLAW_STATE_DIR=~/Desktop/working/github/microservice-monorepo-example/openclaw-sales-manager-agent/state
+export OPENCLAW_CONFIG_PATH="$(pwd)/openclaw-sales-manager-agent/config/openclaw.json"
+export OPENCLAW_STATE_DIR="$HOME/.openclaw-sales-manager/state"
+export OPENCLAW_PAIRED_DEVICES_FILE="$HOME/.openclaw/devices/paired.json"
 # export OPENCLAW_GATEWAY_TOKEN=…  # optional local override; Docker uses openclaw-sales-manager-agent/.env
 openclaw gateway start
 
+# For docker compose, copy `/.env.example` to `/.env` at the repository root
+# and set OPENCLAW_PAIRED_DEVICES_FILE to your host's paired.json path.
 docker compose up -d --build openclaw-sales-manager-agent
 
 # Host Chrome Dev for OpenClaw browser attach mode (CDP on :18800)
