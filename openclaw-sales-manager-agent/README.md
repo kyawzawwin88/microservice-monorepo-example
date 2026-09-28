@@ -4,6 +4,8 @@ export OPENCLAW_PAIRED_DEVICES_FILE="$HOME/.openclaw/devices/paired.json"
 # export OPENCLAW_GATEWAY_TOKEN=…  # optional local override; Docker uses openclaw-sales-manager-agent/.env
 openclaw gateway start
 
+# For docker compose, copy `/.env.example` to `/.env` at the repository root
+# and set OPENCLAW_PAIRED_DEVICES_FILE to your host's paired.json path.
 docker compose up -d --build openclaw-sales-manager-agent
 
 # Host Chrome Dev for OpenClaw browser attach mode (CDP on :18800)
