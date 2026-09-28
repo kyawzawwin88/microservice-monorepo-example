@@ -670,7 +670,7 @@ services:
       - ./openclaw-sales-manager-agent/workspace:/home/node/.openclaw/workspace
       - openclaw_data:/home/node/.openclaw/state
       - openclaw_browsers:/home/node/.cache/ms-playwright
-      - /Users/kyawzawwin/.openclaw/devices/paired.json:/home/node/.openclaw/devices/paired.json:ro
+      - ${OPENCLAW_PAIRED_DEVICES_FILE:?set OPENCLAW_PAIRED_DEVICES_FILE to your host paired.json path}:/home/node/.openclaw/devices/paired.json:ro
     depends_on:
       - ui
       - sales-service

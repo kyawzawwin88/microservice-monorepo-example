@@ -1,5 +1,6 @@
 export OPENCLAW_CONFIG_PATH=~/Desktop/working/github/microservice-monorepo-example/openclaw-sales-manager-agent/config/openclaw.json
 export OPENCLAW_STATE_DIR="$HOME/.openclaw-sales-manager/state"
+export OPENCLAW_PAIRED_DEVICES_FILE="$HOME/.openclaw/devices/paired.json"
 # export OPENCLAW_GATEWAY_TOKEN=…  # optional local override; Docker uses openclaw-sales-manager-agent/.env
 openclaw gateway start
 
