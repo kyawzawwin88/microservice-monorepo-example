@@ -30,6 +30,8 @@ if [ -n "${PAPERCLIP_API_KEY:-}" ]; then
   mkdir -p "$(dirname "${PAPERCLIP_FILE}")"
   export PAPERCLIP_FILE PAPERCLIP_NAME PAPERCLIP_API_KEY
   node -e 'const fs = require("fs"); fs.writeFileSync(process.env.PAPERCLIP_FILE, JSON.stringify({ PAPERCLIP_API_KEY: process.env.PAPERCLIP_API_KEY, name: process.env.PAPERCLIP_NAME }, null, 2) + "\n");'
+else
+  rm -f "${PAPERCLIP_FILE}"
 fi
 
 exec openclaw gateway run --bind lan --port 18799 --allow-unconfigured
