@@ -702,7 +702,6 @@ services:
     network_mode: host
     volumes:
       - ./openclaw-sales-service-developer-agent/workspace:/home/node/.openclaw/workspace
-      - ./openclaw-sales-service-developer-agent/paperclip-claimed-api-key.json:/home/node/.openclaw/workspace/paperclip-claimed-api-key.json:ro
       - ./sales-service:/home/node/.openclaw/workspace/sales-service
       - openclaw_sales_dev_data:/home/node/.openclaw/state
       - openclaw_sales_dev_browsers:/home/node/.cache/ms-playwright
@@ -733,7 +732,6 @@ services:
     network_mode: host
     volumes:
       - ./openclaw-ui-developer-agent/workspace:/home/node/.openclaw/workspace
-      - ./openclaw-ui-developer-agent/paperclip-claimed-api-key.json:/home/node/.openclaw/workspace/paperclip-claimed-api-key.json:ro
       - ./ui:/home/node/.openclaw/workspace/ui
       - openclaw_ui_dev_data:/home/node/.openclaw/state
       - openclaw_ui_dev_browsers:/home/node/.cache/ms-playwright

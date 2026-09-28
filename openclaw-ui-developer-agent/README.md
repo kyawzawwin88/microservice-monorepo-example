@@ -9,7 +9,7 @@ cd openclaw-ui-developer-agent
 cp .env.example .env
 ```
 
-Fill secrets in `.env` (not committed).
+Fill secrets in `.env` (not committed), including `PAPERCLIP_API_KEY` only when needed at runtime.
 
 ## Ports (isolated from other OpenClaw agents)
 

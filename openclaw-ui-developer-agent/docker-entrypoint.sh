@@ -3,6 +3,7 @@ set -eu
 
 AUTH_FILE="${OPENCLAW_STATE_DIR}/agents/main/agent/auth-profiles.json"
 AUTH_DIR="$(dirname "${AUTH_FILE}")"
+PAPERCLIP_FILE="/home/node/.openclaw/workspace/paperclip-claimed-api-key.json"
 
 mkdir -p "${AUTH_DIR}"
 
@@ -20,6 +21,15 @@ if [ -n "${OPENCLAW_AUTH_PROFILE_ACCESS:-}" ] && [ -n "${OPENCLAW_AUTH_PROFILE_R
       "accountId": "${OPENCLAW_AUTH_PROFILE_ACCOUNT_ID}"
     }
   }
+}
+EOF
+fi
+
+if [ -n "${PAPERCLIP_API_KEY:-}" ]; then
+  cat > "${PAPERCLIP_FILE}" <<EOF
+{
+  "PAPERCLIP_API_KEY": "${PAPERCLIP_API_KEY}",
+  "name": "openclaw-ui-developer-agent"
 }
 EOF
 fi

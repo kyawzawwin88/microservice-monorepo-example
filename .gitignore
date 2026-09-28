@@ -26,3 +26,10 @@ Thumbs.db
 *.log
 .cursor
 .specstory
+
+# OpenClaw generated secrets/state
+openclaw-*/paperclip-claimed-api-key.json
+openclaw-*/workspace/paperclip-claimed-api-key.json
+openclaw-*/state/devices/
+openclaw-*/state/identity/
+openclaw-*/state/agents/main/agent/auth-profiles.json

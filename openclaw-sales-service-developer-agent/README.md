@@ -9,7 +9,7 @@ cd openclaw-sales-service-developer-agent
 cp .env.example .env
 ```
 
-Fill in secrets in `.env` (do not commit it).
+Fill in secrets in `.env` (do not commit it), including `PAPERCLIP_API_KEY` only if your workflow needs it.
 
 ## 2) Start host Chrome Dev (optional, for browser tool attach mode)
 
